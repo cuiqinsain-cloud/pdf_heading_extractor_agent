@@ -366,7 +366,8 @@ class PDFHeadingExtractorAgent:
 
             stack.append(heading)
 
-        # 添加页码范围信息
+        # 在过滤前添加页码范围信息（基于所有节点，包括将被过滤的节点）
+        # 这样可以保留原始的章节边界信息
         self._add_page_ranges(headings)
 
         # 统计顶级标题数量
@@ -398,6 +399,8 @@ class PDFHeadingExtractorAgent:
     ):
         """保存结果"""
         # 过滤财务报表相关节点
+        # 注意：页码范围信息已在过滤前计算，基于所有节点（包括被过滤的节点）
+        # 这样可以保留原始的章节边界，更准确地反映实际内容范围
         filtered_tree = self._filter_financial_statements(heading_tree)
 
         output_path = self.formatter.save(
@@ -445,8 +448,21 @@ class PDFHeadingExtractorAgent:
             # 如果有下一个同级标题，计算页码范围
             if next_sibling_page is not None:
                 current_page = heading.get("page", 0)
-                # 确保 end >= start（处理同一页有多个标题的情况）
-                end_page = max(current_page, next_sibling_page - 1)
+                # 包容方式：包含到下一个标题所在页（不包括下一个标题页）
+                # 但考虑到标题可能在页面中部，我们包含到下一个标题所在页的前一页
+                #
+                # 特殊处理：如果下一个标题在当前页的下一页（相邻页），则包含到下一个标题所在页
+                # 例如：合并利润表(81页) -> 母公司利润表(83页)，则合并利润表应覆盖81-83页
+                # 因为第83页的标题可能在页面中部，上半部分仍是合并利润表的内容
+                if next_sibling_page - current_page <= 2:
+                    # 相邻或间隔一页，包含到下一个标题所在页
+                    end_page = next_sibling_page
+                else:
+                    # 间隔较远，保守处理，到下一个标题前一页
+                    end_page = next_sibling_page - 1
+
+                # 确保 end >= start
+                end_page = max(current_page, end_page)
                 heading["page_range"] = {
                     "start": current_page,
                     "end": end_page
