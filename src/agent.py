@@ -238,6 +238,13 @@ class PDFHeadingExtractorAgent:
             console.print(f"  ✓ 书签数量充足，跳过LLM分析")
             return candidate_headings
 
+        # 如果完全没有书签，提示用户
+        if len(candidate_headings) == 0:
+            console.print(f"  [yellow]⚠ 警告: 该PDF没有书签结构[/yellow]")
+            console.print(f"  [yellow]  此类报表暂时无法准确提取，建议使用带书签的PDF[/yellow]")
+            console.print(f"  [yellow]  您可以使用Adobe Acrobat等工具为PDF添加书签后重试[/yellow]")
+            return []
+
         # 使用LLM进行内容分析（补充书签或独立识别）
         console.print(f"  → 使用LLM分析候选文本块...")
 
