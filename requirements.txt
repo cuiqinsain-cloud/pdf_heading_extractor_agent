@@ -1,0 +1,27 @@
+# LLM和Agent框架
+langchain>=0.1.0
+langchain-openai>=0.0.5
+langchain-anthropic>=0.1.0
+openai>=1.0.0
+anthropic>=0.18.0
+
+# PDF处理
+PyMuPDF>=1.23.0
+pdfplumber>=0.10.0
+
+# 数据处理
+pydantic>=2.0.0
+tiktoken>=0.5.0
+
+# 向量存储（可选）
+# chromadb>=0.4.0
+# faiss-cpu>=1.7.4
+
+# 工具和辅助
+PyYAML>=6.0
+python-dotenv>=1.0.0
+rich>=13.0.0  # 美化输出
+
+# 开发和测试
+pytest>=7.4.0
+black>=23.0.0

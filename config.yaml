@@ -1,0 +1,166 @@
+# PDF标题提取Agent配置文件
+
+# ===== LLM配置 =====
+llm:
+  # LLM提供商: openai, anthropic, custom
+  provider: "custom"
+
+  # 模型名称
+  model: "glm-4.7"
+
+  # API密钥 (从环境变量读取)
+  api_key: "${LLM_API_KEY}"
+
+  # 自定义API端点（注意：Anthropic SDK 会自动添加 /v1/messages）
+  base_url: "https://aiapi.chaitin.net"
+
+  # 备用模型（当主模型失败时使用）
+  fallback_model: null
+
+  # 模型参数
+  temperature: 0.1  # 0-1, 越低越确定
+  max_tokens: 4000
+  top_p: 1.0
+
+  # API配置
+  timeout: 60  # 秒
+  max_retries: 3
+
+# ===== Agent配置 =====
+agent:
+  # Agent类型: react, plan-and-execute, conversational
+  type: "plan-and-execute"
+
+  # 最大迭代次数
+  max_iterations: 10
+
+  # 启用功能
+  enable_reflection: true   # 启用自我反思
+  enable_memory: true       # 启用记忆
+  enable_verbose: true      # 详细日志
+
+  # 工具配置
+  tools:
+    - pdf_reader           # PDF读取工具
+    - text_extractor       # 文本提取工具
+    - structure_analyzer   # 结构分析工具
+
+  # 停止条件
+  early_stopping_method: "generate"  # generate, force
+
+# ===== Prompt配置 =====
+prompts:
+  # 语言: chinese, english
+  language: "chinese"
+
+  # 风格: professional, casual
+  style: "professional"
+
+  # 自定义Prompt目录
+  custom_prompts_dir: "prompts/"
+
+  # Few-shot示例数量
+  num_examples: 3
+
+  # 是否使用Chain-of-Thought
+  use_cot: true
+
+# ===== 记忆配置 =====
+memory:
+  # 记忆类型: buffer, summary, vector, conversation_buffer_window
+  type: "buffer"
+
+  # 上下文最大token数
+  max_tokens: 2000
+
+  # 窗口大小（对于window类型）
+  window_size: 5
+
+  # 向量存储配置（可选）
+  vector_store:
+    enabled: false
+    type: "chroma"  # chroma, faiss
+    persist_directory: "data/vectorstore"
+    collection_name: "pdf_headings"
+
+# ===== PDF处理配置 =====
+pdf:
+  # PDF解析引擎: pymupdf, pdfplumber
+  engine: "pymupdf"
+
+  # 是否提取书签
+  extract_bookmarks: true
+
+  # 是否提取字体信息
+  extract_fonts: true
+
+  # 每次处理的页数（分批处理大文件）
+  batch_size: 10
+
+  # 文本清理
+  clean_text: true
+
+# ===== 输出配置 =====
+output:
+  # 输出格式: json, markdown, txt, csv, all
+  format: "json"
+
+  # 输出目录
+  directory: "output"
+
+  # 是否包含推理过程
+  include_reasoning: false
+
+  # 是否包含置信度
+  include_confidence: true
+
+  # 是否包含字体信息
+  include_font_info: false
+
+  # JSON格式化
+  json:
+    indent: 2
+    ensure_ascii: false
+
+# ===== 日志配置 =====
+logging:
+  # 日志级别: DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
+
+  # 日志文件
+  file: "logs/agent.log"
+
+  # 控制台输出
+  console: true
+
+  # 日志格式
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# ===== 性能配置 =====
+performance:
+  # 是否启用缓存
+  enable_cache: true
+
+  # 缓存目录
+  cache_dir: "cache/"
+
+  # 缓存过期时间（秒）
+  cache_ttl: 86400  # 24小时
+
+  # 并发处理
+  enable_async: false
+  max_workers: 4
+
+# ===== 成本控制 =====
+cost_control:
+  # 是否启用成本追踪
+  enable_tracking: true
+
+  # 每个文档的最大token预算
+  max_tokens_per_document: 50000
+
+  # 警告阈值（调用次数）
+  warning_threshold: 50
+
+  # 自动停止阈值（调用次数）
+  stop_threshold: 100
